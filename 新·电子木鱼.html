@@ -1,0 +1,1238 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>多功能电子木鱼</title>
+    <style>
+        /* 通用样式 */
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: #0a0a12;
+            color: white;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        /* 主页样式 */
+        #home-page {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+        }
+        
+        .title {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            color: #4FC3F7;
+        }
+        
+        .mode-selector {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            width: 300px;
+        }
+        
+        .mode-btn {
+            padding: 15px 25px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 8px;
+            background: rgba(79, 195, 247, 0.2);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .mode-btn:hover {
+            background: rgba(79, 195, 247, 0.4);
+            transform: translateY(-3px);
+        }
+        
+        /* 通用内容页样式 */
+        .content-page {
+            display: none;
+            height: 100vh;
+            position: relative;
+        }
+        
+        /* 返回按钮 */
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 8px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 1000;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        /* 电子木鱼样式 */
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            mix-blend-mode: screen;
+            will-change: transform, opacity;
+        }
+        
+        .hardcore-particle {
+            border-radius: 0% !important;
+            mix-blend-mode: plus-lighter;
+        }
+        
+        .screen-shake {
+            animation: screenShake 0.3s cubic-bezier(.36,.07,.19,.97) both;
+        }
+        
+        @keyframes screenShake {
+            10%, 90% {
+                transform: translate3d(-1px, 0, 0);
+            }
+            20%, 80% {
+                transform: translate3d(2px, 0, 0);
+            }
+            30%, 50%, 70% {
+                transform: translate3d(-4px, 0, 0);
+            }
+            40%, 60% {
+                transform: translate3d(4px, 0, 0);
+            }
+        }
+        
+        .lightning-flash {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: white;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 9999;
+        }
+        
+        .flash {
+            animation: flashEffect 0.2s ease-out;
+        }
+        
+        @keyframes flashEffect {
+            0% { opacity: 0.8; }
+            100% { opacity: 0; }
+        }
+        
+        .controls {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 100;
+            color: white;
+            font-family: sans-serif;
+            background: rgba(0,0,0,0.5);
+            padding: 15px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            backdrop-filter: blur(5px);
+            width: 300px;
+        }
+        
+        .counter {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .control-group {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .control-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        label {
+            font-size: 14px;
+            min-width: 60px;
+        }
+        
+        .btn {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex-grow: 1;
+        }
+        
+        .btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        #auto-click-btn.active {
+            background: rgba(100, 200, 255, 0.5);
+            box-shadow: 0 0 10px rgba(100, 200, 255, 0.5);
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+        
+        input[type="range"] {
+            flex-grow: 1;
+        }
+        
+        .speed-display {
+            min-width: 40px;
+            text-align: right;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        #speed-presets {
+            display: flex;
+            gap: 5px;
+            margin-top: 5px;
+        }
+        
+        .speed-preset-btn {
+            padding: 3px 6px;
+            font-size: 12px;
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .speed-preset-btn.active {
+            background: rgba(100, 200, 255, 0.3);
+        }
+        
+        .plus-one {
+            position: absolute;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            opacity: 0;
+            pointer-events: none;
+            animation: floatUp 1s ease-out forwards;
+            text-shadow: 0 0 5px currentColor;
+        }
+        
+        .hardcore-plus-one {
+            font-size: 36px !important;
+            font-weight: 900 !important;
+            text-shadow: 0 0 20px currentColor !important;
+            animation: hardcoreFloatUp 0.8s ease-out forwards !important;
+        }
+        
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px);
+                opacity: 0;
+            }
+        }
+        
+        @keyframes hardcoreFloatUp {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: translateY(-50px) scale(1.5);
+                opacity: 0.9;
+            }
+            100% {
+                transform: translateY(-150px) scale(0.5);
+                opacity: 0;
+            }
+        }
+        
+        .random-color-btn {
+            margin-left: 10px;
+            padding: 2px 5px;
+            font-size: 12px;
+        }
+        
+        /* CPS显示样式 */
+        .cps-display {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+        }
+        
+        .cps-rating {
+            font-size: 1rem;
+            margin-top: 5px;
+            font-weight: bold;
+        }
+        
+        .slow {
+            color: #ff6b6b;
+        }
+        
+        .average {
+            color: #feca57;
+        }
+        
+        .fast {
+            color: #1dd1a1;
+        }
+        
+        .very-fast {
+            color: #54a0ff;
+        }
+        
+        .pro {
+            color: #5f27cd;
+        }
+        
+        .godlike {
+            color: #ff9ff3;
+        }
+        
+        /* 硬核模式开关 */
+        .hardcore-toggle {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+        }
+        
+        .hardcore-switch {
+            position: relative;
+            display: inline-block;
+            width: 120px;
+            height: 34px;
+        }
+        
+        .hardcore-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .hardcore-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #333;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .hardcore-slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .hardcore-slider {
+            background: linear-gradient(90deg, #ff0000, #ff5500);
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+        }
+        
+        input:checked + .hardcore-slider:before {
+            transform: translateX(86px);
+            background-color: #ffcc00;
+            box-shadow: 0 0 10px #ffcc00;
+        }
+        
+        .hardcore-label {
+            display: block;
+            text-align: center;
+            margin-top: 5px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .hardcore-label.active {
+            color: #ff5500;
+            text-shadow: 0 0 5px #ff5500;
+        }
+        
+        /* 警告信息 */
+        .hardcore-warning {
+            position: fixed;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 0, 0, 0.2);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 12px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 0, 0, 0.5);
+            z-index: 1000;
+            text-align: center;
+            max-width: 80%;
+            display: none;
+        }
+        
+        .hardcore-warning.show {
+            display: block;
+            animation: pulseWarning 2s infinite;
+        }
+        
+        @keyframes pulseWarning {
+            0% { background-color: rgba(255, 0, 0, 0.2); }
+            50% { background-color: rgba(255, 0, 0, 0.4); }
+            100% { background-color: rgba(255, 0, 0, 0.2); }
+        }
+    </style>
+</head>
+<body>
+    <!-- 主页 -->
+    <div id="home-page">
+        <h1 class="title">多功能电子木鱼</h1>
+        <div class="mode-selector">
+            <button class="mode-btn" data-mode="wooden-fish">电子木鱼模式</button>
+        </div>
+    </div>
+    
+    <!-- 电子木鱼模式 -->
+    <div id="wooden-fish-page" class="content-page">
+        <button class="back-btn">返回主页</button>
+        
+        <!-- 硬核模式开关 -->
+        <div class="hardcore-toggle">
+            <label class="hardcore-switch">
+                <input type="checkbox" id="hardcore-toggle">
+                <span class="hardcore-slider"></span>
+            </label>
+            <span class="hardcore-label" id="hardcore-label">硬核模式: 关闭</span>
+            <div class="hardcore-warning" id="hardcore-warning">
+                ⚠️ 警告: 硬核模式会产生强烈视觉效果和声音！<br>
+                请注意调整音量和屏幕亮度，避免不适
+            </div>
+        </div>
+        
+        <!-- CPS显示区域 -->
+        <div class="cps-display">
+            <div>实时CPS: <span id="real-time-cps">0.0</span></div>
+            <div class="cps-rating" id="cps-rating">未开始</div>
+        </div>
+        
+        <div class="controls">
+            <div class="counter">点击次数: <span id="click-count">0</span></div>
+            
+            <div class="control-group">
+                <div class="control-row">
+                    <label for="color-picker">颜色:</label>
+                    <input type="color" id="color-picker" value="#4FC3F7">
+                    <span id="color-display">#4FC3F7</span>
+                    <button id="random-color-btn" class="btn random-color-btn">随机</button>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <div class="control-row">
+                    <label for="volume-control">音量:</label>
+                    <input type="range" id="volume-control" min="0" max="1" step="0.1" value="0.5">
+                </div>
+            </div>
+            
+            <div class="control-group hidden" id="speed-control-group">
+                <div class="control-row">
+                    <label for="speed-control">连点速度:</label>
+                    <input type="range" id="speed-control" min="20" max="500" step="10" value="100">
+                    <span class="speed-display" id="speed-display">100ms</span>
+                </div>
+                <div id="speed-presets">
+                    <button class="speed-preset-btn" data-speed="100">极快</button>
+                    <button class="speed-preset-btn" data-speed="200">快速</button>
+                    <button class="speed-preset-btn active" data-speed="300">中速</button>
+                    <button class="speed-preset-btn" data-speed="500">慢速</button>
+                </div>
+            </div>
+            
+            <div class="btn-group">
+                <button id="reset-btn" class="btn">重置计数器</button>
+                <button id="auto-click-btn" class="btn">自动连点</button>
+            </div>
+        </div>
+        
+        <!-- 闪电闪光效果层 -->
+        <div class="lightning-flash" id="lightning-flash"></div>
+    </div>
+
+    <script>
+        // 页面切换逻辑
+        const homePage = document.getElementById('home-page');
+        const woodenFishPage = document.getElementById('wooden-fish-page');
+        const modeBtns = document.querySelectorAll('.mode-btn');
+        const backBtns = document.querySelectorAll('.back-btn');
+        
+        // 显示主页
+        function showHomePage() {
+            homePage.style.display = 'flex';
+            woodenFishPage.style.display = 'none';
+        }
+        
+        // 显示电子木鱼模式
+        function showWoodenFishPage() {
+            homePage.style.display = 'none';
+            woodenFishPage.style.display = 'block';
+            initWoodenFishMode();
+        }
+        
+        // 模式按钮事件
+        modeBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const mode = btn.dataset.mode;
+                if (mode === 'wooden-fish') {
+                    showWoodenFishPage();
+                }
+            });
+        });
+        
+        // 返回按钮事件
+        backBtns.forEach(btn => {
+            btn.addEventListener('click', showHomePage);
+        });
+        
+        // 初始化显示主页
+        showHomePage();
+        
+        // ==================== 电子木鱼模式 ====================
+        function initWoodenFishMode() {
+            // 从本地存储加载数据
+            let currentColor = localStorage.getItem('clickEffectColor') || '#4FC3F7';
+            let clickCount = parseInt(localStorage.getItem('clickEffectCount')) || 0;
+            let autoClickInterval = null;
+            let autoClickSpeed = parseInt(localStorage.getItem('autoClickSpeed')) || 300;
+            let volume = parseFloat(localStorage.getItem('clickEffectVolume')) || 0.5;
+            let hardcoreMode = localStorage.getItem('hardcoreMode') === 'true' || false;
+            
+            // CPS相关变量
+            let clickTimestamps = [];
+            let realTimeCps = 0;
+            let cpsUpdateInterval = null;
+            
+            // 音频上下文和音效
+            let audioContext;
+            let clickBuffer;
+            let woodBlockBuffer;
+            let thunderBuffer;
+            let audioInitialized = false;
+            
+            // 初始化音频
+            async function initAudio() {
+                if (audioInitialized) return;
+                
+                try {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    
+                    // 创建点击音效
+                    const duration = 0.2;
+                    const sampleRate = audioContext.sampleRate;
+                    const frameCount = duration * sampleRate;
+                    clickBuffer = audioContext.createBuffer(1, frameCount, sampleRate);
+                    const clickChannelData = clickBuffer.getChannelData(0);
+                    
+                    for (let i = 0; i < frameCount; i++) {
+                        const n = i / sampleRate;
+                        clickChannelData[i] = Math.sin(n * 880 * Math.PI * 2) * 
+                                            Math.exp(-n * 15) * 
+                                            (0.5 + 0.5 * Math.sin(n * 440 * Math.PI * 2));
+                    }
+                    
+                    // 创建木鱼音效
+                    const woodBlockDuration = 0.3;
+                    const woodBlockFrameCount = woodBlockDuration * sampleRate;
+                    woodBlockBuffer = audioContext.createBuffer(1, woodBlockFrameCount, sampleRate);
+                    const woodBlockChannelData = woodBlockBuffer.getChannelData(0);
+                    
+                    for (let i = 0; i < woodBlockFrameCount; i++) {
+                        const n = i / sampleRate;
+                        // 模拟木鱼声
+                        woodBlockChannelData[i] = (Math.random() * 0.2 + 0.8) * 
+                                                Math.exp(-n * 8) * 
+                                                Math.sin(n * 1200 * Math.PI * 2) * 
+                                                (1 - Math.abs(n * 6 - Math.floor(n * 6 + 0.5)));
+                    }
+                    
+                    // 创建雷鸣音效
+                    const thunderDuration = 1.5;
+                    const thunderFrameCount = thunderDuration * sampleRate;
+                    thunderBuffer = audioContext.createBuffer(1, thunderFrameCount, sampleRate);
+                    const thunderChannelData = thunderBuffer.getChannelData(0);
+                    
+                    // 生成雷鸣声音
+                    for (let i = 0; i < thunderFrameCount; i++) {
+                        const t = i / sampleRate;
+                        // 低频轰鸣声
+                        let value = Math.sin(t * 50 * Math.PI * 2) * Math.exp(-t * 2);
+                        // 添加一些随机噪音模拟雷声
+                        value += (Math.random() - 0.5) * 0.1 * Math.exp(-t * 3);
+                        // 添加高频闪电声
+                        value += Math.sin(t * 1200 * Math.PI * 2) * Math.exp(-t * 10) * 0.3;
+                        // 添加中频隆隆声
+                        value += Math.sin(t * 80 * Math.PI * 2) * Math.exp(-t * 1.5) * 0.5;
+                        
+                        thunderChannelData[i] = Math.max(-1, Math.min(1, value * 0.8));
+                    }
+                    
+                    audioInitialized = true;
+                } catch (e) {
+                    console.error('音频初始化失败:', e);
+                }
+            }
+            
+            // 播放点击音效
+            function playClickSound(isWoodBlock = false, isHardcore = false) {
+                if (!audioInitialized) {
+                    initAudio();
+                    return;
+                }
+                
+                if (!audioContext) return;
+                
+                const source = audioContext.createBufferSource();
+                
+                if (isHardcore) {
+                    // 硬核模式播放雷鸣声
+                    source.buffer = thunderBuffer;
+                } else {
+                    source.buffer = isWoodBlock ? woodBlockBuffer : clickBuffer;
+                }
+                
+                const gainNode = audioContext.createGain();
+                // 硬核模式音量更大
+                gainNode.gain.value = isHardcore ? volume * 1.5 : volume;
+                
+                // 硬核模式添加低音增强
+                if (isHardcore) {
+                    const lowpassFilter = audioContext.createBiquadFilter();
+                    lowpassFilter.type = 'lowshelf';
+                    lowpassFilter.frequency.value = 200;
+                    lowpassFilter.gain.value = 15;
+                    
+                    source.connect(lowpassFilter);
+                    lowpassFilter.connect(gainNode);
+                } else {
+                    source.connect(gainNode);
+                }
+                
+                gainNode.connect(audioContext.destination);
+                source.start();
+                
+                // 硬核模式下添加延迟效果
+                if (isHardcore) {
+                    setTimeout(() => {
+                        const delaySource = audioContext.createBufferSource();
+                        delaySource.buffer = thunderBuffer;
+                        
+                        const delayGain = audioContext.createGain();
+                        delayGain.gain.value = volume * 0.7;
+                        
+                        const delayNode = audioContext.createDelay();
+                        delayNode.delayTime.value = 0.2;
+                        
+                        delaySource.connect(delayGain);
+                        delayGain.connect(delayNode);
+                        delayNode.connect(audioContext.destination);
+                        
+                        delaySource.start();
+                    }, 100);
+                }
+            }
+            
+            // 获取DOM元素
+            const colorPicker = document.getElementById('color-picker');
+            const colorDisplay = document.getElementById('color-display');
+            const clickCountDisplay = document.getElementById('click-count');
+            const resetBtn = document.getElementById('reset-btn');
+            const autoClickBtn = document.getElementById('auto-click-btn');
+            const volumeControl = document.getElementById('volume-control');
+            const speedControl = document.getElementById('speed-control');
+            const speedDisplay = document.getElementById('speed-display');
+            const speedControlGroup = document.getElementById('speed-control-group');
+            const speedPresetBtns = document.querySelectorAll('.speed-preset-btn');
+            const randomColorBtn = document.getElementById('random-color-btn');
+            const realTimeCpsDisplay = document.getElementById('real-time-cps');
+            const cpsRatingDisplay = document.getElementById('cps-rating');
+            const hardcoreToggle = document.getElementById('hardcore-toggle');
+            const hardcoreLabel = document.getElementById('hardcore-label');
+            const hardcoreWarning = document.getElementById('hardcore-warning');
+            const lightningFlash = document.getElementById('lightning-flash');
+            
+            // 初始化UI
+            colorPicker.value = currentColor;
+            colorDisplay.textContent = currentColor;
+            clickCountDisplay.textContent = clickCount;
+            volumeControl.value = volume;
+            speedControl.value = autoClickSpeed;
+            speedDisplay.textContent = `${autoClickSpeed}ms`;
+            hardcoreToggle.checked = hardcoreMode;
+            updateHardcoreUI();
+            
+            // 开始CPS计算
+            startCpsTracking();
+            
+            // 在页面加载时尝试初始化音频（部分浏览器允许）
+            initAudio();
+
+            // 颜色选择器事件
+            colorPicker.addEventListener('input', (e) => {
+                currentColor = e.target.value;
+                colorDisplay.textContent = currentColor;
+                localStorage.setItem('clickEffectColor', currentColor);
+            });
+
+            // 随机颜色按钮
+            randomColorBtn.addEventListener('click', () => {
+                const randomColor = '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
+                currentColor = randomColor;
+                colorPicker.value = randomColor;
+                colorDisplay.textContent = randomColor;
+                localStorage.setItem('clickEffectColor', randomColor);
+            });
+
+            // 音量控制事件
+            volumeControl.addEventListener('input', (e) => {
+                volume = parseFloat(e.target.value);
+                localStorage.setItem('clickEffectVolume', volume);
+            });
+
+            // 连点速度控制事件
+            speedControl.addEventListener('input', (e) => {
+                autoClickSpeed = parseInt(e.target.value);
+                updateSpeedDisplay();
+                localStorage.setItem('autoClickSpeed', autoClickSpeed);
+                
+                // 如果正在连点，更新间隔
+                if (autoClickInterval) {
+                    restartAutoClick();
+                }
+            });
+
+            // 速度预设按钮事件
+            speedPresetBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    autoClickSpeed = parseInt(btn.dataset.speed);
+                    speedControl.value = autoClickSpeed;
+                    updateSpeedDisplay();
+                    localStorage.setItem('autoClickSpeed', autoClickSpeed);
+                    
+                    // 如果正在连点，更新间隔
+                    if (autoClickInterval) {
+                        restartAutoClick();
+                    }
+                    
+                    // 高亮显示当前预设
+                    speedPresetBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                });
+            });
+
+            // 硬核模式切换事件
+            hardcoreToggle.addEventListener('change', () => {
+                hardcoreMode = hardcoreToggle.checked;
+                localStorage.setItem('hardcoreMode', hardcoreMode);
+                updateHardcoreUI();
+                
+                // 显示/隐藏警告
+                if (hardcoreMode) {
+                    hardcoreWarning.classList.add('show');
+                    // 5秒后自动隐藏警告
+                    setTimeout(() => {
+                        hardcoreWarning.classList.remove('show');
+                    }, 5000);
+                } else {
+                    hardcoreWarning.classList.remove('show');
+                }
+            });
+
+            // 更新硬核模式UI
+            function updateHardcoreUI() {
+                if (hardcoreMode) {
+                    hardcoreLabel.textContent = "硬核模式: 开启";
+                    hardcoreLabel.classList.add('active');
+                } else {
+                    hardcoreLabel.textContent = "硬核模式: 关闭";
+                    hardcoreLabel.classList.remove('active');
+                }
+            }
+
+            // 更新速度显示
+            function updateSpeedDisplay() {
+                speedDisplay.textContent = `${autoClickSpeed}ms`;
+            }
+
+            // 重置按钮事件
+            resetBtn.addEventListener('click', () => {
+                clickCount = 0;
+                clickCountDisplay.textContent = clickCount;
+                localStorage.setItem('clickEffectCount', clickCount);
+                
+                // 重置CPS数据
+                clickTimestamps = [];
+                updateCpsDisplay();
+            });
+
+            // 开始自动连点
+            function startAutoClick() {
+                autoClickInterval = setInterval(() => {
+                    // 在随机位置生成点击效果
+                    const x = Math.random() * window.innerWidth;
+                    const y = Math.random() * window.innerHeight;
+                    
+                    clickCount++;
+                    clickCountDisplay.textContent = clickCount;
+                    localStorage.setItem('clickEffectCount', clickCount);
+                    
+                    // 记录点击时间戳用于CPS计算
+                    const now = Date.now();
+                    clickTimestamps.push(now);
+                    
+                    // 硬核模式或普通模式
+                    if (hardcoreMode) {
+                        playClickSound(false, true);
+                        createHardcoreEffect(x, y);
+                    } else {
+                        playClickSound();
+                        createRipple(x, y);
+                        createParticles(x, y);
+                    }
+                    
+                    createPlusOne(x, y, hardcoreMode);
+                }, autoClickSpeed);
+            }
+
+            // 停止自动连点
+            function stopAutoClick() {
+                if (autoClickInterval) {
+                    clearInterval(autoClickInterval);
+                    autoClickInterval = null;
+                }
+            }
+
+            // 重新启动自动连点（用于速度变化时）
+            function restartAutoClick() {
+                stopAutoClick();
+                startAutoClick();
+            }
+
+            // 自动连点按钮事件
+            autoClickBtn.addEventListener('click', () => {
+                if (autoClickInterval) {
+                    // 如果已经在连点，则停止
+                    stopAutoClick();
+                    autoClickBtn.classList.remove('active');
+                    autoClickBtn.textContent = '自动连点';
+                    speedControlGroup.classList.add('hidden');
+                } else {
+                    // 开始连点
+                    autoClickBtn.classList.add('active');
+                    autoClickBtn.textContent = '停止连点';
+                    speedControlGroup.classList.remove('hidden');
+                    startAutoClick();
+                }
+            });
+            
+            // 开始CPS跟踪
+            function startCpsTracking() {
+                // 每秒更新CPS显示
+                cpsUpdateInterval = setInterval(updateCpsDisplay, 1000);
+            }
+            
+            // 更新CPS显示
+            function updateCpsDisplay() {
+                const now = Date.now();
+                // 只保留最近5秒内的点击记录
+                clickTimestamps = clickTimestamps.filter(timestamp => now - timestamp < 5000);
+                
+                // 计算CPS（每秒点击次数）
+                if (clickTimestamps.length > 0) {
+                    const oldestTimestamp = clickTimestamps[0];
+                    const timeWindow = (now - oldestTimestamp) / 1000;
+                    realTimeCps = timeWindow > 0 ? clickTimestamps.length / timeWindow : clickTimestamps.length;
+                } else {
+                    realTimeCps = 0;
+                }
+                
+                // 更新显示
+                realTimeCpsDisplay.textContent = realTimeCps.toFixed(1);
+                
+                // 更新评级
+                updateCpsRating(realTimeCps);
+            }
+            
+            // 根据CPS值获取评级
+            function getCpsRating(cps) {
+                if (cps === 0) return { text: "未开始", class: "" };
+                if (cps < 2) return { text: "慢速", class: "slow" };
+                if (cps < 4) return { text: "普通", class: "average" };
+                if (cps < 6) return { text: "快速", class: "fast" };
+                if (cps < 8) return { text: "非常快", class: "very-fast" };
+                if (cps < 10) return { text: "专业级", class: "pro" };
+                return { text: "神级", class: "godlike" };
+            }
+            
+            // 更新CPS评级显示
+            function updateCpsRating(cps) {
+                const rating = getCpsRating(cps);
+                cpsRatingDisplay.textContent = rating.text;
+                cpsRatingDisplay.className = "cps-rating " + rating.class;
+            }
+
+            // 创建+1文字效果
+            function createPlusOne(x, y, isHardcore = false) {
+                const plusOne = document.createElement('div');
+                plusOne.className = isHardcore ? 'plus-one hardcore-plus-one' : 'plus-one';
+                plusOne.textContent = isHardcore ? '+10' : '+1';
+                plusOne.style.color = isHardcore ? getRandomBrightColor() : currentColor;
+                plusOne.style.left = x + 'px';
+                plusOne.style.top = y + 'px';
+                
+                document.body.appendChild(plusOne);
+                
+                // 动画结束后移除元素
+                setTimeout(() => {
+                    if (plusOne.parentNode) {
+                        document.body.removeChild(plusOne);
+                    }
+                }, isHardcore ? 800 : 1000);
+            }
+
+            // 获取随机亮色
+            function getRandomBrightColor() {
+                const colors = [
+                    '#FF0000', '#FF5500', '#FFAA00', '#FFFF00',
+                    '#AAFF00', '#00FF00', '#00FFAA', '#00FFFF',
+                    '#00AAFF', '#0055FF', '#0000FF', '#AA00FF',
+                    '#FF00FF', '#FF00AA', '#FFFFFF'
+                ];
+                return colors[Math.floor(Math.random() * colors.length)];
+            }
+
+            // 点击事件处理
+            function handleClick(x, y, isLeftClick = true) {
+                // 如果是连点模式，不处理手动点击
+                if (autoClickInterval) return;
+                
+                clickCount++;
+                clickCountDisplay.textContent = clickCount;
+                localStorage.setItem('clickEffectCount', clickCount);
+                
+                // 记录点击时间戳用于CPS计算
+                const now = Date.now();
+                clickTimestamps.push(now);
+                
+                // 左键点击播放普通音效，右键点击播放木鱼音效
+                if (hardcoreMode) {
+                    // 硬核模式
+                    playClickSound(!isLeftClick, true);
+                    createHardcoreEffect(x, y);
+                    // 添加屏幕震动
+                    document.body.classList.add('screen-shake');
+                    setTimeout(() => {
+                        document.body.classList.remove('screen-shake');
+                    }, 300);
+                } else {
+                    playClickSound(!isLeftClick);
+                    createRipple(x, y);
+                    createParticles(x, y);
+                }
+                
+                createPlusOne(x, y, hardcoreMode);
+            }
+
+            // 页面点击事件
+            woodenFishPage.addEventListener('click', (e) => {
+                // 左键点击
+                if (e.button === 0) {
+                    handleClick(e.clientX, e.clientY);
+                }
+            });
+
+            // 右键点击事件（播放木鱼音效）
+            woodenFishPage.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                handleClick(e.clientX, e.clientY, false);
+                return false;
+            });
+
+            // 空格键点击事件
+            document.addEventListener('keydown', (e) => {
+                if (e.code === 'Space') {
+                    e.preventDefault();
+                    const x = window.innerWidth / 2;
+                    const y = window.innerHeight / 2;
+                    handleClick(x, y);
+                }
+            });
+
+            // 创建普通涟漪效果
+            function createRipple(x, y) {
+                const ripple = document.createElement('div');
+                ripple.className = 'particle';
+                ripple.style.left = x + 'px';
+                ripple.style.top = y + 'px';
+                ripple.style.width = '0';
+                ripple.style.height = '0';
+                ripple.style.backgroundColor = currentColor;
+                ripple.style.boxShadow = `0 0 0 0 ${currentColor}80`;
+                
+                document.body.appendChild(ripple);
+                
+                const size = Math.max(window.innerWidth, window.innerHeight) * 0.3;
+                
+                anime({
+                    targets: ripple,
+                    width: size + 'px',
+                    height: size + 'px',
+                    opacity: [1, 0],
+                    boxShadow: [`0 0 0 0 ${currentColor}80`, `0 0 30px 20px ${currentColor}00`],
+                    duration: 1200,
+                    easing: 'easeOutExpo',
+                    complete: () => {
+                        if (ripple.parentNode) {
+                            document.body.removeChild(ripple);
+                        }
+                    }
+                });
+            }
+
+            // 创建普通粒子效果
+            function createParticles(x, y) {
+                const particleCount = 24;
+                const particles = [];
+                
+                for (let i = 0; i < particleCount; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.left = x + 'px';
+                    particle.style.top = y + 'px';
+                    particle.style.width = '8px';
+                    particle.style.height = '8px';
+                    // 随机颜色或使用当前颜色
+                    particle.style.backgroundColor = Math.random() > 0.7 ? 
+                        '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0') : 
+                        currentColor;
+                    
+                    document.body.appendChild(particle);
+                    particles.push(particle);
+                    
+                    const angle = (i / particleCount) * Math.PI * 2;
+                    const distance = 100 + Math.random() * 50;
+                    const duration = 800 + Math.random() * 400;
+                    
+                    anime({
+                        targets: particle,
+                        translateX: Math.cos(angle) * distance,
+                        translateY: Math.sin(angle) * distance,
+                        opacity: [1, 0],
+                        width: '2px',
+                        height: '2px',
+                        duration: duration,
+                        easing: 'easeOutExpo',
+                        delay: Math.random() * 100,
+                        complete: () => {
+                            if (particle.parentNode) {
+                                document.body.removeChild(particle);
+                            }
+                        }
+                    });
+                }
+            }
+            
+            // 创建硬核效果
+            function createHardcoreEffect(x, y) {
+                // 屏幕闪光效果
+                lightningFlash.classList.add('flash');
+                setTimeout(() => {
+                    lightningFlash.classList.remove('flash');
+                }, 200);
+                
+                // 大爆炸涟漪效果
+                createExplosionRipple(x, y);
+                
+                // 大量粒子爆炸
+                createHardcoreParticles(x, y);
+                
+                // 闪电效果
+                createLightning(x, y);
+            }
+            
+            // 创建爆炸涟漪
+            function createExplosionRipple(x, y) {
+                const ripple = document.createElement('div');
+                ripple.className = 'particle';
+                ripple.style.left = x + 'px';
+                ripple.style.top = y + 'px';
+                ripple.style.width = '0';
+                ripple.style.height = '0';
+                ripple.style.backgroundColor = getRandomBrightColor();
+                ripple.style.boxShadow = `0 0 0 0 ${getRandomBrightColor()}80`;
+                
+                document.body.appendChild(ripple);
+                
+                const size = Math.max(window.innerWidth, window.innerHeight) * 0.8;
+                
+                anime({
+                    targets: ripple,
+                    width: size + 'px',
+                    height: size + 'px',
+                    opacity: [0.8, 0],
+                    boxShadow: [`0 0 0 0 ${getRandomBrightColor()}80`, `0 0 60px 40px ${getRandomBrightColor()}00`],
+                    duration: 800,
+                    easing: 'easeOutExpo',
+                    complete: () => {
+                        if (ripple.parentNode) {
+                            document.body.removeChild(ripple);
+                        }
+                    }
+                });
+            }
+            
+            // 创建硬核粒子效果
+            function createHardcoreParticles(x, y) {
+                const particleCount = 80;
+                const particles = [];
+                
+                for (let i = 0; i < particleCount; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle hardcore-particle';
+                    particle.style.left = x + 'px';
+                    particle.style.top = y + 'px';
+                    particle.style.width = Math.random() * 15 + 5 + 'px';
+                    particle.style.height = Math.random() * 15 + 5 + 'px';
+                    particle.style.backgroundColor = getRandomBrightColor();
+                    particle.style.borderRadius = Math.random() > 0.5 ? '50%' : '0%';
+                    
+                    document.body.appendChild(particle);
+                    particles.push(particle);
+                    
+                    const angle = Math.random() * Math.PI * 2;
+                    const distance = 200 + Math.random() * 300;
+                    const duration = 600 + Math.random() * 600;
+                    
+                    anime({
+                        targets: particle,
+                        translateX: Math.cos(angle) * distance,
+                        translateY: Math.sin(angle) * distance,
+                        rotate: Math.random() * 360,
+                        opacity: [1, 0],
+                        width: Math.random() * 10 + 2 + 'px',
+                        height: Math.random() * 10 + 2 + 'px',
+                        duration: duration,
+                        easing: 'easeOutExpo',
+                        delay: Math.random() * 100,
+                        complete: () => {
+                            if (particle.parentNode) {
+                                document.body.removeChild(particle);
+                            }
+                        }
+                    });
+                }
+            }
+            
+            // 创建闪电效果
+            function createLightning(x, y) {
+                const lightningCount = 5;
+                
+                for (let i = 0; i < lightningCount; i++) {
+                    const lightning = document.createElement('div');
+                    lightning.className = 'particle';
+                    lightning.style.left = x + 'px';
+                    lightning.style.top = y + 'px';
+                    lightning.style.width = '3px';
+                    lightning.style.height = '0';
+                    lightning.style.backgroundColor = '#FFFFFF';
+                    lightning.style.borderRadius = '2px';
+                    
+                    document.body.appendChild(lightning);
+                    
+                    const angle = Math.random() * Math.PI * 2;
+                    const length = 100 + Math.random() * 200;
+                    const segments = 5;
+                    const segmentLength = length / segments;
+                    
+                    // 创建锯齿状闪电路径
+                    let path = [];
+                    let currentX = 0;
+                    let currentY = 0;
+                    
+                    for (let j = 0; j <= segments; j++) {
+                        const offsetX = Math.random() * 30 - 15;
+                        const offsetY = Math.random() * 30 - 15;
+                        path.push({
+                            x: currentX + offsetX,
+                            y: currentY + offsetY
+                        });
+                        currentX += Math.cos(angle) * segmentLength;
+                        currentY += Math.sin(angle) * segmentLength;
+                    }
+                    
+                    // 简化的闪电动画
+                    anime({
+                        targets: lightning,
+                        height: length + 'px',
+                        translateX: path[path.length-1].x,
+                        translateY: path[path.length-1].y,
+                        rotate: angle * (180/Math.PI),
+                        opacity: [0.8, 0],
+                        duration: 300,
+                        easing: 'easeOutExpo',
+                        delay: Math.random() * 100,
+                        complete: () => {
+                            if (lightning.parentNode) {
+                                document.body.removeChild(lightning);
+                            }
+                        }
+                    });
+                }
+            }
+            
+            // 清理函数
+            return function cleanup() {
+                if (cpsUpdateInterval) {
+                    clearInterval(cpsUpdateInterval);
+                }
+                stopAutoClick();
+            };
+        }
+    </script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+</body>
+</html>
